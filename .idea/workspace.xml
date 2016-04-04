@@ -2,30 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6c36134d-7abb-4107-b195-9b6e71110fde" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\.gitignore" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\app.js" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\components\about.jade" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\components\demoComponent\demoComponent.jade" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\components\demoComponent\demoComponentDirective.js" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\components\home.jade" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\img\socials-s34e775ff01.png" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\img\socials\fb.png" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\img\socials\git.png" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\img\socials\in.png" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\img\socials\tw.png" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\img\socials\vk.png" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\img\socials\you.png" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\index.jade" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\scss\adjustment\_layouts.scss" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\scss\adjustment\_media.scss" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\scss\adjustment\_mixins.scss" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\scss\adjustment\_normalize.scss" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\scss\adjustment\_varibles.scss" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\scss\app.scss" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\app\scss\sections\_main-page.scss" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\gulpfile.js" afterPath="" />
       <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\node_modules\.bin\dateformat" afterPath="" />
       <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\node_modules\.bin\dateformat.cmd" afterPath="" />
       <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\node_modules\.bin\gulp" afterPath="" />
@@ -909,7 +885,7 @@
       <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\node_modules\xtend\mutable.js" afterPath="" />
       <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\node_modules\xtend\package.json" afterPath="" />
       <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\node_modules\xtend\test.js" afterPath="" />
-      <change type="DELETED" beforePath="C:\BIMcontractor\BIMc\package.json" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="BIMc.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -1028,6 +1004,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="BIMc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="BIMc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="BIMc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bower_components" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -1328,7 +1318,7 @@
       <created>1459763271695</created>
       <option name="number" value="Default" />
       <updated>1459763271695</updated>
-      <workItem from="1459763275092" duration="10434000" />
+      <workItem from="1459763275092" duration="10591000" />
     </task>
     <task id="LOCAL-00001" summary="Configurated gulp and first run app">
       <created>1459774763801</created>
@@ -1342,11 +1332,17 @@
       <option name="project" value="LOCAL" />
       <updated>1459775788496</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Fixed gulp dependencies">
+      <created>1459776211601</created>
+      <option name="number" value="00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1459776211601</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10434000" />
+    <option name="totallyTimeSpent" value="10591000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
@@ -1383,7 +1379,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Configurated gulp and first run app" />
-    <option name="LAST_COMMIT_MESSAGE" value="Configurated gulp and first run app" />
+    <MESSAGE value="Fixed gulp dependencies" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed gulp dependencies" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
