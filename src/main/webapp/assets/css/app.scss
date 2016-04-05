@@ -2,13 +2,13 @@
 @import "singularitygs";
 
 /* ----- adjustment ----- */
-@import "adjustment/varibles";
-@import "adjustment/mixins";
-@import "adjustment/media";
-@import "adjustment/layouts";
+@import "adjustment/_varibles";
+@import "adjustment/_mixins";
+@import "adjustment/_media";
+@import "adjustment/_layouts";
 
 /* ----- sections ----- */
-@import "sections/main-page";
+@import "sections/_main-page";
 
 @include sgs-change('debug', false);
 

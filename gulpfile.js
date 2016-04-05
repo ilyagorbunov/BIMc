@@ -5,9 +5,7 @@ var del = require('del');
 var es = require('event-stream');
 var bowerFiles = require('main-bower-files');
 var browserSync = require('browser-sync');//для запуска сервера
-// If you use jade in your project you must set variable 'useJade' equal 'TRUE'
-//Если мы хотим использовать Jade - пишем true, если просто html - то false
-var useJade = true;
+
 // If we want see error logs
 var log = function (error) {
   console.log([
@@ -20,19 +18,15 @@ var log = function (error) {
   ].join('\n'));
   this.end();
 };
-/* = = =
-  |
-  | PATH SEGMENT
-  |
-   = = = */
+/*
+  PATH SEGMENT
+*/
 var paths = {
-  scripts: 'app/**/*.js', //path for our js files
-  styles: ['./app/scss/**/*.css', './app/scss/**/*.scss'], //path for our *.css and *.scss
-  images: 'app/img/**/*', //path for our images
-  index: 'app/index.html', //path for our index.html
-  indexJade: 'app/index.jade', //path for our index.jade
-  partials: ['app/**/*.html', '!app/index.html'], //path for our *.html files
-  partialsJade: ['app/**/*.jade', '!app/index.jade'], //path for our *.jade files
+  scripts: 'src/**/*.js', //path for our js files
+  styles: 'src/**/*.css', //path for our *.css and *.scss
+  images: 'src/**/*.jpg', //path for our images
+  index: 'src/**/index.html', //path for our index.html
+  partials: ['src/**/*.html', '!src/**/index.html'], //path for our *.html files
   distDev: 'dist.dev', //path for our DEV directory
   distProd: 'dist.prod', //path for our PROD directory
   distDevCss: 'dist.dev/css', //path for our DEV directory and CSS folder
@@ -41,11 +35,10 @@ var paths = {
   distProdImg: 'dist.prod/img', //path for our DEV directory and IMG folder
   distScriptsProd: 'dist.prod/scripts' //path for our PROD directory and JS folder
 };
-/* = = =
- |
- | PIPE SEGMENT
- |
- = = = */
+
+/*
+ PIPE SEGMENT
+ */
 var pipes = {};
 // Sorts our scripts, first jQuery, and then angular
 pipes.orderedVendorScripts = function() {
@@ -59,22 +52,13 @@ pipes.validatedAppScripts = function() {
 };
 // Built index.jade file or gulp.src index.html
 pipes.buildIndexFile = function() {
-  if (useJade) {
-    return gulp.src(paths.indexJade)
-      .pipe(plugins.plumber({
-        errorHandler: function (error) {
-          console.log(error.message);
-          this.emit('end');
-        }}))
-      .pipe(plugins.jade())
-      .pipe(plugins.prettify({indent_size: 2}))
-  } else {
     return gulp.src(paths.index);
-  }
 };
-/* = = =
- | DEV PIPE SEGMENT
- = = = */
+
+
+/*
+ DEV PIPE SEGMENT
+*/
 // Copy all the scripts from the bower_components and then moves to DEV directory
 pipes.builtVendorScriptsDev = function() {
   return gulp.src(bowerFiles())
@@ -87,17 +71,17 @@ pipes.builtAppScriptsDev = function() {
     .pipe(plugins.concat('app.js'))//файл на выходе после конкатенации
     .pipe(gulp.dest(paths.distDev));//куда кладем итоговые файлы
 };
-//Собираем все scss
-// Built Style scss file
+//Собираем все css
+// Built Style css file
 pipes.builtStylesDev = function() {
-    return gulp.src('./app/scss/**/*.scss')
+    return gulp.src('./src/**/*.css')
       .pipe(plugins.plumber({
         errorHandler: function (error) {
           console.log(error.message);
           this.emit('end');
         }}))
         //для работы этого блока необходимо установить compass и singularitygs - дают возможность созавать спрайты
-      .pipe(plugins.compass({
+/*      .pipe(plugins.compass({
           sourcemap: true,
           css: paths.distDevCss,
           sass: './app/scss/',
@@ -106,24 +90,16 @@ pipes.builtStylesDev = function() {
       }))
       .pipe(plugins.cssUrlAdjuster({
         replace:  ['../../app/img','../img/'] //When we use sprite we have wrong path for our sprite, this is fixed
-      }))
+      }))*/
       .pipe(gulp.dest(paths.distDevCss));
 };
 // Built all others jade file or html files and then moves to DEV directory
 //Нужен для отслеживания html кроме index.html. Будет копировать все части кода прочих html
 pipes.builtPartialsFilesDev = function() {
-  if (useJade) {
-    return gulp.src(paths.partialsJade)
-        .pipe(plugins.plumber())
-        .pipe(plugins.jade())
-        .pipe(plugins.prettify({indent_size: 2}))
-        .pipe(gulp.dest(paths.distDev));
-  } else {
     return gulp.src(paths.partials)
         .pipe(plugins.htmlhint({'doctype-first': false}))
         .pipe(plugins.htmlhint.reporter())
         .pipe(gulp.dest(paths.distDev));
-  }
 };
 //Копирует все картинки
 // Copy images files and then moves to DEV directory
@@ -151,27 +127,18 @@ pipes.builtIndexDev = function() {
 pipes.builtAppDev = function() {
   return es.merge(pipes.builtIndexDev(), pipes.builtPartialsFilesDev(), pipes.processedImagesDev());
 };
-/* = = =
- | PROD PIPE SEGMENT
- = = = */
+
+
+/*
+ PROD PIPE SEGMENT
+*/
 // Built all others jade file or html files and then moves to PROD directory, before we check our files through htmlHint
 pipes.builtPartialsFilesProd = function() {
-  if (useJade) {
-    return gulp.src(paths.partialsJade)
-        .pipe(plugins.plumber())
-        .pipe(plugins.jade())
-        .pipe(plugins.prettify({indent_size: 2}))
-        .pipe(plugins.htmlhint({'doctype-first': false}))
-        .pipe(plugins.htmlhint.reporter())
-        .pipe(plugins.htmlmin({collapseWhitespace: true, removeComments: true}))
-        .pipe(gulp.dest(paths.distProd));
-  } else {
     return gulp.src(paths.partials)
         .pipe(plugins.htmlhint({'doctype-first': false}))
         .pipe(plugins.htmlhint.reporter())
         .pipe(plugins.htmlmin({collapseWhitespace: true, removeComments: true}))
         .pipe(gulp.dest(paths.distProd));
-  }
 };
 // Built App Script concat, minification and then moves to PROD directory
 pipes.builtAppScriptsProd = function() {
@@ -189,18 +156,18 @@ pipes.builtVendorScriptsProd = function() {
       .pipe(plugins.uglify())
       .pipe(gulp.dest(paths.distScriptsProd));
 };
-// Built style scss file
+// Built style css file
 pipes.builtStylesProd = function() {
-  return gulp.src('./app/scss/**/*.scss')
-      .pipe(plugins.compass({
+  return gulp.src('./src/**/*.css')
+      /*.pipe(plugins.compass({
         css: paths.distDevCss,
         sass: './app/scss/',
         image: './app/img/',
         require: ['compass', 'singularitygs']
-      }))
-      .pipe(plugins.cssUrlAdjuster({
+      }))*/
+/*      .pipe(plugins.cssUrlAdjuster({
         replace:  ['../../app/img','../img/']
-      }))
+      }))*/
       .pipe(plugins.minifyCss({compatibility: 'ie8'}))
       .pipe(plugins.rename('style.min.css'))
       .pipe(plugins.csso())
@@ -228,14 +195,16 @@ pipes.builtIndexProd = function() {
 pipes.builtAppProd = function() {
   return es.merge(pipes.builtIndexProd(), pipes.builtPartialsFilesProd(), pipes.processedImagesProd());
 };
-/* = = =
- |
- | TASK
- |
- = = = */
-/* = = =
- | DEV TASKS
- = = = */
+
+
+/*
+ TASK
+ */
+
+
+/*
+DEV TASKS
+*/
 
 //gulp.task - можно вызывать из консоли по названию. Например 'clean-dev'
 // removes all compiled dev files
@@ -301,9 +270,11 @@ gulp.task('watch-dev', ['clean-build-app-dev'], function() {
   });
 
 });
-/* = = =
- | PROD TASKS
- = = = */
+
+
+/*
+PROD TASKS
+*/
 // removes all compiled prod files
 gulp.task('clean-prod', function() {
   return del(paths.distProd);
@@ -319,13 +290,9 @@ gulp.task('watch-prod', ['clean-build-app-prod'], function() {
   var partialsPath;
   var reload = browserSync.reload;
 
-  if (useJade) {
-    indexPath = paths.indexJade;
-    partialsPath = paths.partialsJade;
-  } else {
     indexPath = paths.index;
     partialsPath = paths.partials;
-  }
+
   // start browser-sync to auto-reload the dev server
   browserSync({
     port: 8000,
@@ -366,9 +333,11 @@ gulp.task('watch-prod', ['clean-build-app-prod'], function() {
   });
 
 });
-/* = = =
- | DEFAULT TASKS
- = = = */
+
+
+/*
+DEFAULT TASKS
+*/
 //чтобы запуситть просто через команду gulp
 // If we start only gulp command we built DEV folder and DEV server
 gulp.task('default', ['watch-dev']);

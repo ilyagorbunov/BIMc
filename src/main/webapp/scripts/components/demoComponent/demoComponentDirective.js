@@ -8,7 +8,7 @@
   function demoComponentFn() {
     return {
       restrict: 'A',
-      templateUrl: 'components/demoComponent/demoComponent.html'
+      templateUrl: '/demoComponent.html'
     };
   }
 })();
