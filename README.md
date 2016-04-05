@@ -1,5 +1,5 @@
 # Angular + Gulp: Fast built
-![AngularJS plus Gulp](cover.jpg)
+![AngularJS plus Gulp]
 ## Installation
 
 Before running any Gulp tasks:
