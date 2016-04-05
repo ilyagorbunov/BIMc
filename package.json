@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/Severenit/angular-gulp",
   "devDependencies": {
-    "browser-sync": "^2.9.6",
+    "browser-sync": "^2.11.2",
     "del": "^2.0.2",
     "event-stream": "^3.3.1",
     "gulp": "^3.9.0",
