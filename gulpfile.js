@@ -96,6 +96,7 @@ pipes.builtStylesDev = function() {
           console.log(error.message);
           this.emit('end');
         }}))
+        //для работы этого блока необходимо установить compass и singularitygs - дают возможность созавать спрайты
       .pipe(plugins.compass({
           sourcemap: true,
           css: paths.distDevCss,
@@ -310,6 +311,7 @@ gulp.task('clean-prod', function() {
 // builds a complete prod environment
 gulp.task('build-app-prod', pipes.builtAppProd);
 // cleans and builds a complete prod environment
+//очищает продакшен и создает минифицированный .js, .css и тд
 gulp.task('clean-build-app-prod', ['clean-prod'], pipes.builtAppProd);
 // clean, build, and watch live changes to the prod environment
 gulp.task('watch-prod', ['clean-build-app-prod'], function() {

@@ -8,6 +8,7 @@
     ])
     .config(appConfig);
 
+  //рассавлят сам все зависимости
   // @ngInject
   function appConfig($stateProvider, $urlRouterProvider) {
     console.log('=== Start Config ===');
