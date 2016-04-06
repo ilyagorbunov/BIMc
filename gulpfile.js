@@ -1,343 +1,40 @@
-var gulp = require('gulp');
-var plugins = require('gulp-load-plugins')();//download plugins into gulpfile.js
-//for module not from gulp, we use 'require'
-var del = require('del');
-var es = require('event-stream');
-var bowerFiles = require('main-bower-files');
-var browserSync = require('browser-sync');//дл€ запуска сервера
+'use strict'
 
-// If we want see error logs
-var log = function (error) {
-  console.log([
-    '',
-    "----------ERROR MESSAGE START----------",
-    ("[" + error.name + " in " + error.plugin + "]"),
-    error.message,
-    "----------ERROR MESSAGE END----------",
-    ''
-  ].join('\n'));
-  this.end();
-};
-/*
-  PATH SEGMENT
-*/
-var paths = {
-  scripts: 'src/**/*.js', //path for our js files
-  styles: 'src/**/*.css', //path for our *.css and *.scss
-  images: 'src/**/*.jpg', //path for our images
-  index: 'src/**/index.html', //path for our index.html
-  partials: ['src/**/*.html', '!src/**/index.html'], //path for our *.html files
-  distDev: 'dist.dev', //path for our DEV directory
-  distProd: 'dist.prod', //path for our PROD directory
-  distDevCss: 'dist.dev/css', //path for our DEV directory and CSS folder
-  distProdCss: 'dist.prod/css', //path for our PROD directory and CSS folder
-  distDevImg: 'dist.dev/img', //path for our DEV directory and IMG folder
-  distProdImg: 'dist.prod/img', //path for our DEV directory and IMG folder
-  distScriptsProd: 'dist.prod/scripts' //path for our PROD directory and JS folder
-};
+var gulp = require('gulp'),
+    livereload = require('gulp-livereload'),
+    connect = require('gulp-connect'),
+    wiredep = require('wiredep').stream;
 
-/*
- PIPE SEGMENT
- */
-var pipes = {};
-// Sorts our scripts, first jQuery, and then angular
-pipes.orderedVendorScripts = function() {
-  return plugins.order(['jquery.js', 'angular.js']);
-};
-// Check our JS scripts through jsHint
-pipes.validatedAppScripts = function() {
-  return gulp.src(paths.scripts)
-    .pipe(plugins.jshint())
-    .pipe(plugins.jshint.reporter('jshint-stylish'));
-};
-// Built index.jade file or gulp.src index.html
-pipes.buildIndexFile = function() {
-    return gulp.src(paths.index);
-};
-
-
-/*
- DEV PIPE SEGMENT
-*/
-// Copy all the scripts from the bower_components and then moves to DEV directory
-pipes.builtVendorScriptsDev = function() {
-  return gulp.src(bowerFiles())
-    .pipe(gulp.dest(paths.distDev + '/bower_components'));
-};
-// Built App Script and then moves to DEV directory
-pipes.builtAppScriptsDev = function() {
-  return pipes.validatedAppScripts()//пропускаем сначала скрипты через проверку jshint
-    .pipe(plugins.ngAnnotate()) // We use ngAnnotate for inject on Angular
-    .pipe(plugins.concat('app.js'))//файл на выходе после конкатенации
-    .pipe(gulp.dest(paths.distDev));//куда кладем итоговые файлы
-};
-//—обираем все css
-// Built Style css file
-pipes.builtStylesDev = function() {
-    return gulp.src('./src/**/*.css')
-      .pipe(plugins.plumber({
-        errorHandler: function (error) {
-          console.log(error.message);
-          this.emit('end');
-        }}))
-        //дл€ работы этого блока необходимо установить compass и singularitygs - дают возможность созавать спрайты
-/*      .pipe(plugins.compass({
-          sourcemap: true,
-          css: paths.distDevCss,
-          sass: './app/scss/',
-          image: './app/img/',
-          require: ['compass', 'singularitygs']
-      }))
-      .pipe(plugins.cssUrlAdjuster({
-        replace:  ['../../app/img','../img/'] //When we use sprite we have wrong path for our sprite, this is fixed
-      }))*/
-      .pipe(gulp.dest(paths.distDevCss));
-};
-// Built all others jade file or html files and then moves to DEV directory
-//Ќужен дл€ отслеживани€ html кроме index.html. Ѕудет копировать все части кода прочих html
-pipes.builtPartialsFilesDev = function() {
-    return gulp.src(paths.partials)
-        .pipe(plugins.htmlhint({'doctype-first': false}))
-        .pipe(plugins.htmlhint.reporter())
-        .pipe(gulp.dest(paths.distDev));
-};
-// опирует все картинки
-// Copy images files and then moves to DEV directory
-pipes.processedImagesDev = function() {
-  return gulp.src(paths.images)
-      .pipe(gulp.dest(paths.distDevImg));
-};
-// Built all project
-//заполн€ет в index.html все пол€ со скриптами. ƒл€ это в index.html должны быть аннотации
-pipes.builtIndexDev = function() {
-    //записываем все скрипты в одну переменную
-  var orderedVendorScripts = pipes.builtVendorScriptsDev()
-    .pipe(pipes.orderedVendorScripts());//сортируем скрипты
-  var orderedAppScripts = pipes.builtAppScriptsDev();
-  var appStyles = pipes.builtStylesDev();
-  return pipes.buildIndexFile()
-    .pipe(gulp.dest(paths.distDev)) // write first to get relative path for inject
-    .pipe(plugins.inject(orderedVendorScripts, {relative: true, name: 'bower'}))
-    .pipe(plugins.inject(orderedAppScripts, {relative: true}))
-    .pipe(plugins.inject(appStyles, {relative: true}))
-    .pipe(gulp.dest(paths.distDev));
-};
-// Run streaming Assembly
-//дл€ последовательного вызова тасков: будут вызваны в указаном пор€дке
-pipes.builtAppDev = function() {
-  return es.merge(pipes.builtIndexDev(), pipes.builtPartialsFilesDev(), pipes.processedImagesDev());
-};
-
-
-/*
- PROD PIPE SEGMENT
-*/
-// Built all others jade file or html files and then moves to PROD directory, before we check our files through htmlHint
-pipes.builtPartialsFilesProd = function() {
-    return gulp.src(paths.partials)
-        .pipe(plugins.htmlhint({'doctype-first': false}))
-        .pipe(plugins.htmlhint.reporter())
-        .pipe(plugins.htmlmin({collapseWhitespace: true, removeComments: true}))
-        .pipe(gulp.dest(paths.distProd));
-};
-// Built App Script concat, minification and then moves to PROD directory
-pipes.builtAppScriptsProd = function() {
-  return pipes.validatedAppScripts()
-      .pipe(plugins.ngAnnotate())
-      .pipe(plugins.concat('app.min.js'))
-      .pipe(plugins.uglify())
-      .pipe(gulp.dest(paths.distScriptsProd));
-};
-// Copy all the scripts from the bower_components and then moves to PROD/scripts directory
-pipes.builtVendorScriptsProd = function() {
-  return gulp.src(bowerFiles('**/*.js'))
-      .pipe(pipes.orderedVendorScripts())
-      .pipe(plugins.concat('vendor.min.js'))
-      .pipe(plugins.uglify())
-      .pipe(gulp.dest(paths.distScriptsProd));
-};
-// Built style css file
-pipes.builtStylesProd = function() {
-  return gulp.src('./src/**/*.css')
-      /*.pipe(plugins.compass({
-        css: paths.distDevCss,
-        sass: './app/scss/',
-        image: './app/img/',
-        require: ['compass', 'singularitygs']
-      }))*/
-/*      .pipe(plugins.cssUrlAdjuster({
-        replace:  ['../../app/img','../img/']
-      }))*/
-      .pipe(plugins.minifyCss({compatibility: 'ie8'}))
-      .pipe(plugins.rename('style.min.css'))
-      .pipe(plugins.csso())
-      .pipe(gulp.dest(paths.distProdCss));
-};
-// Copy images files and then moves to DEV directory
-pipes.processedImagesProd = function() {
-  return gulp.src(paths.images)
-    .pipe(gulp.dest(paths.distProdImg));
-};
-// Built all project
-pipes.builtIndexProd = function() {
-  var vendorScripts = pipes.builtVendorScriptsProd();
-  var appScripts = pipes.builtAppScriptsProd();
-  var appStyles = pipes.builtStylesProd();
-  return pipes.buildIndexFile()
-      .pipe(gulp.dest(paths.distProd)) // write first to get relative path for inject
-      .pipe(plugins.inject(vendorScripts, {relative: true, name: 'bower'}))
-      .pipe(plugins.inject(appScripts, {relative: true}))
-      .pipe(plugins.inject(appStyles, {relative: true}))
-      .pipe(plugins.htmlmin({collapseWhitespace: true, removeComments: true}))
-      .pipe(gulp.dest(paths.distProd));
-};
-// Run streaming Assembly
-pipes.builtAppProd = function() {
-  return es.merge(pipes.builtIndexProd(), pipes.builtPartialsFilesProd(), pipes.processedImagesProd());
-};
-
-
-/*
- TASK
- */
-
-
-/*
-DEV TASKS
-*/
-
-//gulp.task - можно вызывать из консоли по названию. Ќапример 'clean-dev'
-// removes all compiled dev files
-gulp.task('clean-dev', function() {
-  return del(paths.distDev);
+//server connect
+gulp.task('connect', function(){
+    connect.server({
+        root: './src/main/webapp/',
+        livereload: true
+    });
 });
-// builds a complete prod environment
-//запускам последовательное выполнение тасков
-gulp.task('build-app-dev', pipes.builtAppDev);
-// cleans and builds a complete dev environment
-gulp.task('clean-build-app-dev', ['clean-dev'], pipes.builtAppDev);
-//строит приложение и выполн€ет автоматическое обновление, при каких-то изменени€х
-// clean, build, and watch live changes to the dev environment
-gulp.task('watch-dev', ['clean-build-app-dev'], function() {
-  var indexPath;
-  var partialsPath;
-  var reload = browserSync.reload;
 
-  if (useJade) {
-    indexPath = paths.indexJade;
-    partialsPath = paths.partialsJade;
-  } else {
-    indexPath = paths.index;
-    partialsPath = paths.partials;
-  }
-  // start browser-sync to auto-reload the dev server
-  browserSync({
-    port: 8000,
-    server: {
-      baseDir: paths.distDev
-    }
-  });
+//html
+gulp.task('html', function(){
+    gulp.src('src/main/webapp/index.html')
+        .pipe(connect.reload());
+});
 
-  // watch index - автоматическое обновление index.html
-  gulp.watch(indexPath, function() {
-    return pipes.builtIndexDev()
-        .pipe(reload({stream: true}));
-  });
+//wiredep realise
+gulp.task('bower', function () {
+    gulp.src('./src/main/webapp/index.html')
+        .pipe(wiredep({
+            directory: "./src/main/webapp/bower_components"
+        }))
+        .pipe(gulp.dest('./src/main/webapp/'));
+});
 
-  // watch app scripts - автоматическое обновление скриптов
-  gulp.watch(paths.scripts, function() {
-    return pipes.builtAppScriptsDev()
-        .pipe(reload({stream: true}));
-  });
-
-  // watch html partials - обновление остальных html
-  gulp.watch(partialsPath, function() {
-    return pipes.builtPartialsFilesDev()
-        .pipe(reload({stream: true}));
-
-  });
-
-  // watch styles - обновление стилей
-  gulp.watch(paths.styles, function() {
-    return pipes.builtStylesDev()
-        .pipe(reload({stream: true}));
-  });
-
-  // watch images - обновление картинок
-  gulp.watch(paths.images, function() {
-    return pipes.processedImagesDev()
-        .pipe(reload({stream: true}));
-  });
-
+//watch
+gulp.task('watch', function(){
+    gulp.watch('src/main/webapp/index.html', ['html']),
+    gulp.watch('./src/main/webapp/bower.json', ['bower'])
 });
 
 
-/*
-PROD TASKS
-*/
-// removes all compiled prod files
-gulp.task('clean-prod', function() {
-  return del(paths.distProd);
-});
-// builds a complete prod environment
-gulp.task('build-app-prod', pipes.builtAppProd);
-// cleans and builds a complete prod environment
-//очищает продакшен и создает минифицированный .js, .css и тд
-gulp.task('clean-build-app-prod', ['clean-prod'], pipes.builtAppProd);
-// clean, build, and watch live changes to the prod environment
-gulp.task('watch-prod', ['clean-build-app-prod'], function() {
-  var indexPath;
-  var partialsPath;
-  var reload = browserSync.reload;
+//default
+gulp.task('default', ['connect', 'html', 'watch', 'bower']);
 
-    indexPath = paths.index;
-    partialsPath = paths.partials;
-
-  // start browser-sync to auto-reload the dev server
-  browserSync({
-    port: 8000,
-    server: {
-      baseDir: paths.distProd
-    }
-  });
-
-  // watch index
-  gulp.watch(indexPath, function() {
-    return pipes.builtIndexDev()
-      .pipe(reload({stream: true}));
-  });
-
-  // watch app scripts
-  gulp.watch(paths.scripts, function() {
-    return pipes.builtAppScriptsDev()
-      .pipe(reload({stream: true}));
-  });
-
-  // watch html partials
-  gulp.watch(partialsPath, function() {
-    return pipes.builtPartialsFilesDev()
-      .pipe(reload({stream: true}));
-
-  });
-
-  // watch styles
-  gulp.watch(paths.styles, function() {
-    return pipes.builtStylesDev()
-      .pipe(reload({stream: true}));
-  });
-
-  // watch images
-  gulp.watch(paths.images, function() {
-    return pipes.processedImagesDev()
-      .pipe(reload({stream: true}));
-  });
-
-});
-
-
-/*
-DEFAULT TASKS
-*/
-//чтобы запуситть просто через команду gulp
-// If we start only gulp command we built DEV folder and DEV server
-gulp.task('default', ['watch-dev']);
