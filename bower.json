@@ -1,6 +1,6 @@
 {
   "name": "bimc",
-  "description": "",
+  "description": "bimcontractor",
   "main": "index.js",
   "authors": [
     "BIMcreator <bimc.develop@gmail.com>"
